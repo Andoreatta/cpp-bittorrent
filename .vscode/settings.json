@@ -1,3 +1,7 @@
 {
-    "sonarlint.pathToCompileCommands": "${workspaceFolder}\\build\\compile_commands.json"
+    "cmake.configureOnOpen": true,
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "files.associations": {
+        "string_view": "cpp"
+    }
 }
