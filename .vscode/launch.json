@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bittorrent",
-            "args": ["decode", "3656454774:dasdasdasdffefrgrgegr"],
+            "args": ["decode", "l15:hellohellohelloi565582ee"],
             "stopAtEntry": true,
             "cwd": "${fileDirname}",
             "environment": [],

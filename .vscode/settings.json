@@ -2,6 +2,9 @@
     "cmake.configureOnOpen": true,
     "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
     "files.associations": {
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "stdexcept": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp"
     }
 }
