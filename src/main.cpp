@@ -6,8 +6,6 @@
 #include "lib/nlohmann/json.hpp"
 #include "lib/bencode/decode.hpp"
 
-using json = nlohmann::json;
-
 int main(int argc, char *argv[])
 {
         // If there are less than 3 arguments or the first argument is not "decode", print usage and exit
@@ -19,17 +17,42 @@ int main(int argc, char *argv[])
 
         std::string_view encoded_value(argv[2]);
 
+        json decoded_value;
         try
         {
-                size_t index = {0};
-                json decoded_value = extract_and_decode(encoded_value, index, encoded_value[0]);
-                std::cout << decoded_value.dump() << std::endl;
+                switch (encoded_value.front())
+                {
+                case 'i':
+                {
+                        auto [value, _] = decode_bencoded_integer(encoded_value);
+                        decoded_value = value;
+                        break;
+                }
+                case 'l':
+                {
+                        auto [value, _] = decode_bencoded_list(encoded_value);
+                        decoded_value = value;
+                        break;
+                }
+                default:
+                        if (std::isdigit(encoded_value.front()))
+                        {
+                                auto [value, _] = decode_bencoded_string(encoded_value);
+                                decoded_value = value;
+                        }
+                        else
+                        {
+                                throw std::invalid_argument("Invalid bencode type");
+                        }
+                }
         }
         catch (const std::invalid_argument &e)
         {
-                std::cerr << "Error: " << e.what() << std::endl;
+                std::cerr << "Error decoding bencoded value: " << e.what() << std::endl;
                 return 1;
         }
+
+        std::cout << decoded_value.dump() << std::endl;
 
         return 0;
 }
