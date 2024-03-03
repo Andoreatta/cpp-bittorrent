@@ -34,6 +34,12 @@ int main(int argc, char *argv[])
                         decoded_value = value;
                         break;
                 }
+                case 'd':
+                {
+                        auto [value, _] = decode_bencoded_dictionary(encoded_value);
+                        decoded_value = value;
+                        break;
+                }
                 default:
                         if (std::isdigit(encoded_value.front()))
                         {

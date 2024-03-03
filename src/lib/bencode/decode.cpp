@@ -70,7 +70,7 @@ std::pair<json, size_t> decode_bencoded_list(std::string_view encoded_value)
                         current_index += nested_list_length;
                         break;
                 }
-                case 'e':
+                case 'e': // end of encoded value
                 {
                         return {decoded_list, current_index + 1};
                 }
@@ -92,4 +92,64 @@ std::pair<json, size_t> decode_bencoded_list(std::string_view encoded_value)
         }
 
         throw std::invalid_argument("No end of list bencode found");
+}
+
+// transforms a bencoded dictionary (e.g. d3:foo3:bar5:helloi52ee) into a json object (e.g. {"foo": "bar", "hello": 52})
+std::pair<json, size_t> decode_bencoded_dictionary(std::string_view encoded_value)
+{
+        if (encoded_value.front() != 'd')
+        {
+                throw std::invalid_argument("Invalid bencode signaling");
+        }
+
+        json decoded_dictionary = json::object();
+        size_t current_index = 1;
+
+        // this while is different from the others, because it has to check for the end of the dictionary
+        while (encoded_value[current_index] != 'e')
+        {
+                auto [decoded_key, key_length] = decode_bencoded_string(encoded_value.substr(current_index));
+                current_index += key_length;
+
+                switch (encoded_value[current_index])
+                {
+                case 'i':
+                {
+                        auto [decoded_integer, integer_length] = decode_bencoded_integer(encoded_value.substr(current_index));
+                        decoded_dictionary[decoded_key] = decoded_integer;
+                        current_index += integer_length;
+                        break;
+                }
+                case 'l':
+                {
+                        auto [decoded_list, list_length] = decode_bencoded_list(encoded_value.substr(current_index));
+                        decoded_dictionary[decoded_key] = decoded_list;
+                        current_index += list_length;
+                        break;
+                }
+                case 'd':
+                {
+                        auto [decoded_nested_dictionary, nested_dictionary_length] = decode_bencoded_dictionary(encoded_value.substr(current_index));
+                        decoded_dictionary[decoded_key] = decoded_nested_dictionary;
+                        current_index += nested_dictionary_length;
+                        break;
+                }
+                default:
+                {
+                        if (std::isdigit(encoded_value[current_index]))
+                        {
+                                auto [decoded_string, string_length] = decode_bencoded_string(encoded_value.substr(current_index));
+                                decoded_dictionary[decoded_key] = decoded_string;
+                                current_index += string_length;
+                        }
+                        else
+                        {
+                                throw std::invalid_argument("Invalid character in bencoded dictionary");
+                        }
+                        break;
+                }
+                }
+        }
+
+        return {decoded_dictionary, current_index + 1};
 }
