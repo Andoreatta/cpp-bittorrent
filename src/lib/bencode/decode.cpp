@@ -16,7 +16,6 @@ std::pair<std::string_view, size_t> decode_bencoded_string(std::string_view enco
         }
 
         uint64_t string_length = string_to_uint64(encoded_value.substr(0, colon_index));
-
         std::string_view extracted_string = encoded_value.substr(colon_index + 1, string_length);
 
         return {extracted_string, colon_index + 1 + string_length};

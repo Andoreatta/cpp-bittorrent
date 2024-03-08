@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <fstream>
 #include <charconv>
 #include "lib/nlohmann/json.hpp"
 #include "lib/bencode/decode.hpp"
@@ -56,15 +57,35 @@ int main(int argc, char *argv[])
                 }
                 catch (const std::invalid_argument &e)
                 {
-                        std::cerr << "Error decoding bencoded value: " << e.what() << std::endl;
                         return 1;
+                        std::cerr << "Error decoding bencoded value: " << e.what() << std::endl;
                 }
 
                 std::cout << decoded_value.dump() << std::endl;
         }
         else if (command == "info")
         {
-                // Handle info command
+                std::ifstream input_file{argv[2], std::ios::binary};
+                if (!input_file)
+                {
+                        std::cerr << "Error opening torrent file: " << argv[2] << std::endl;
+                        return 1;
+                }
+
+                std::vector<char> file_data((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+                std::string_view file_data_view(file_data.data(), file_data.size());
+
+                try
+                {
+                        auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
+                        std::cout << "Tracker URL: " << decoded_info.at("announce").get<std::string>() << std::endl;
+                        std::cout << "Length: " << decoded_info.at("info").at("length").get<int>() << std::endl;
+                }
+                catch (const std::invalid_argument &e)
+                {
+                        std::cerr << "Error decoding bencoded info dictionary: " << e.what() << std::endl;
+                        return 1;
+                }
         }
         else
         {
