@@ -6,6 +6,8 @@
 #include <charconv>
 #include "lib/nlohmann/json.hpp"
 #include "lib/bencode/decode.hpp"
+#include "lib/bencode/encode.hpp"
+#include "lib/hash/sha1.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -74,12 +76,15 @@ int main(int argc, char *argv[])
 
                 std::vector<char> file_data((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
                 std::string_view file_data_view(file_data.data(), file_data.size());
-
                 try
                 {
                         auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
+                        std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
+                        SHA1 sha1;
+
                         std::cout << "Tracker URL: " << decoded_info.at("announce").get<std::string>() << std::endl;
-                        std::cout << "Length: " << decoded_info.at("info").at("length").get<int>() << std::endl;
+                        std::cout << "Length: " << decoded_info.at("info").at("length").get<int64_t>() << std::endl;
+                        std::cout << "Info Hash: " << sha1(bencoded_string) << std::endl;
                 }
                 catch (const std::invalid_argument &e)
                 {

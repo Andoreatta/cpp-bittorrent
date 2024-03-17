@@ -2,6 +2,7 @@
     "cmake.configureOnOpen": true,
     "sonarlint.pathToCompileCommands": "${workspaceFolder}/build/compile_commands.json",
     "files.associations": {
+        "*.css": "tailwindcss",
         "string_view": "cpp",
         "stdexcept": "cpp",
         "compare": "cpp",
@@ -60,6 +61,8 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "fstream": "cpp",
+        "format": "cpp"
     }
 }
