@@ -7,6 +7,7 @@
 #include "lib/bencode/decode.hpp"
 #include "lib/bencode/encode.hpp"
 #include "lib/hash/sha1.hpp"
+#include "lib/bencode/utils.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -77,13 +78,21 @@ int main(int argc, char *argv[])
                 std::string_view file_data_view(file_data.data(), file_data.size());
                 try
                 {
+                        SHA1 sha1;
                         auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
                         std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
-                        SHA1 sha1;
+                        std::string pieces = decoded_info.at("info").at("pieces").get<std::string>();
 
                         std::cout << "Tracker URL: " << decoded_info.at("announce").get<std::string>() << std::endl;
                         std::cout << "Length: " << decoded_info.at("info").at("length").get<int64_t>() << std::endl;
                         std::cout << "Info Hash: " << sha1(bencoded_string) << std::endl;
+                        std::cout << "Piece Length: " << decoded_info.at("info").at("piece length").get<int64_t>() << std::endl;
+                        std::cout << "Piece Hashes: " << std::endl;
+                        for (size_t i = 0; i < pieces.length(); i += 20)
+                        {
+                                std::string piece_hash = pieces.substr(i, 20);
+                                print_hash_in_hex(piece_hash);
+                        }
                 }
                 catch (const std::invalid_argument &e)
                 {

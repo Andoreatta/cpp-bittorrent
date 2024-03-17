@@ -1,8 +1,10 @@
 #include "utils.hpp"
+#include <iostream>
 #include <charconv>
 #include <stdexcept>
 #include <string_view>
 #include <cstdint>
+#include <iomanip>
 
 // stoUll, but for std::string_view
 uint64_t string_to_uint64(std::string_view str)
@@ -17,7 +19,6 @@ uint64_t string_to_uint64(std::string_view str)
         return number;
 }
 
-
 // stoll, but for std::string_view
 int64_t string_to_int64(std::string_view str)
 {
@@ -29,4 +30,15 @@ int64_t string_to_int64(std::string_view str)
         }
 
         return number;
+}
+
+void print_hash_in_hex(const std::string &piece_hash)
+{
+        for (char c : piece_hash)
+        {
+                unsigned char byte = static_cast<unsigned char>(c); // cast to unsigned char to avoid sign extension
+                int value = static_cast<int>(byte);
+                std::cout << std::hex << std::setw(2) << std::setfill('0') << value;
+        }
+        std::cout << std::endl;
 }
