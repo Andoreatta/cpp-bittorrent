@@ -1,5 +1,4 @@
 #include "encode.hpp"
-#include <format>
 #include <sstream>
 
 std::string encode_to_bencoded_string(const json &json_value)
@@ -7,11 +6,15 @@ std::string encode_to_bencoded_string(const json &json_value)
         std::stringstream bencoded_string;
         if (json_value.is_string())
         {
-                bencoded_string << std::format("{}:{}", json_value.get<std::string>().size(), json_value.get<std::string>());
+                std::stringstream temp;
+                temp << json_value.get<std::string>().size() << ":" << json_value.get<std::string>();
+                bencoded_string << temp.str();
         }
         else if (json_value.is_number_integer())
         {
-                bencoded_string << std::format("i{}e", json_value.get<int64_t>());
+                std::stringstream temp;
+                temp << "i" << json_value.get<int64_t>() << "e";
+                bencoded_string << temp.str();
         }
         else if (json_value.is_array())
         {
