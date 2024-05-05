@@ -120,10 +120,22 @@ int main(int argc, char *argv[])
                         std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
                         std::string url = decoded_info.at("announce").get<std::string>();
                         std::string encoded_info_hash = url_encode(sha1(bencoded_string));
-                        http::Request request{url + "?info_hash=" + encoded_info_hash + "&peer_id=00112233445566778899&port=6881&uploaded=0&downloaded=0&left=0&compact=1"};
+                        std::string left = std::to_string(file_data.size()); // Convert size_t to string
+                        http::Request request{url + "?info_hash=" + encoded_info_hash + "&peer_id=00112233445566778899&port=6881&uploaded=0&downloaded=0&left=" + left + "&compact=1"};
                         const auto response = request.send("GET");
-                        std::cout << std::string{response.body.begin(), response.body.end()} << std::endl;
-                        std::cout << encoded_info_hash << std::endl;
+                        std::string response_body{response.body.begin(), response.body.end()};
+                        std::string_view response_body_view(response_body.data(), response_body.size());
+                        auto [decoded_response, _] = decode_bencoded_dictionary(response_body_view);
+                        std::string peers = decoded_response.at("peers").get<std::string>();
+                        for (size_t i = 0; i < peers.length(); i += 6)
+                        {
+                                std::string ip = std::to_string(static_cast<unsigned char>(peers[i])) + "." +
+                                                 std::to_string(static_cast<unsigned char>(peers[i + 1])) + "." +
+                                                 std::to_string(static_cast<unsigned char>(peers[i + 2])) + "." +
+                                                 std::to_string(static_cast<unsigned char>(peers[i + 3]));
+                                uint16_t port = (static_cast<uint16_t>(static_cast<unsigned char>(peers[i + 4]) << 8)) | static_cast<uint16_t>(static_cast<unsigned char>(peers[i + 5]));
+                                std::cout << ip << ":" << port << std::endl;
+                        }
                 }
                 catch (const std::invalid_argument &e)
                 {

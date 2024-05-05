@@ -1,0 +1,18 @@
+[33mcb082d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33mdb5c206[m[33m ([m[1;31mcodecrafters/master[m[33m)[m HEAD@{1}: commit: test
+[33mcb082d5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: commit: added piece length and piece hashes will be printed in hex format
+[33m84f9121[m HEAD@{3}: commit: removed the use of <format>, as the remote compiler doesnt support C++20
+[33m6569335[m HEAD@{4}: commit: added json to bencode string
+[33m04a5f16[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31mcodecrafters/develop[m[33m)[m HEAD@{5}: merge origin/develop: Fast-forward
+[33m3b9eb34[m HEAD@{6}: checkout: moving from develop to master
+[33mf36fd1f[m[33m ([m[1;32mdevelop[m[33m)[m HEAD@{7}: commit: why the damn tests arent passing
+[33m04a5f16[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31mcodecrafters/develop[m[33m)[m HEAD@{8}: commit: added .torrent file parsing and decoding
+[33m3b9eb34[m HEAD@{9}: checkout: moving from master to develop
+[33m3b9eb34[m HEAD@{10}: reset: moving to HEAD
+[33m3b9eb34[m HEAD@{11}: checkout: moving from develop to master
+[33m3b9eb34[m HEAD@{12}: checkout: moving from develop to develop
+[33m3b9eb34[m HEAD@{13}: checkout: moving from master to develop
+[33m3b9eb34[m HEAD@{14}: checkout: moving from master to master
+[33m3b9eb34[m HEAD@{15}: commit: changed how the different arguments are handled, for 'decode' and 'info'
+[33mf327ce1[m HEAD@{16}: commit: decode dictionary has been added, seems to work properly
+[33mc03f90e[m HEAD@{17}: clone: from https://github.com/Andoreatta/cpp-bittorrent.git
