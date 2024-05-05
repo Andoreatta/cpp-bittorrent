@@ -6,7 +6,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/bittorrent",
             "args": [
-                "info",
+                "peers",
                 "../sample.torrent"
             ],
             "stopAtEntry": true,

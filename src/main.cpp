@@ -6,8 +6,10 @@
 #include "lib/nlohmann/json.hpp"
 #include "lib/bencode/decode.hpp"
 #include "lib/bencode/encode.hpp"
-#include "lib/hash/sha1.hpp"
 #include "lib/bencode/utils.hpp"
+#include "lib/hash/sha1.hpp"
+#include "lib/http/HTTPRequest.hpp"
+#include "lib/http/utils.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -91,8 +93,37 @@ int main(int argc, char *argv[])
                         for (size_t i = 0; i < pieces.length(); i += 20)
                         {
                                 std::string piece_hash = pieces.substr(i, 20);
-                                print_hash_in_hex(piece_hash);
+                                std::cout << hash_to_hex_string(piece_hash) << std::endl;
                         }
+                }
+                catch (const std::invalid_argument &e)
+                {
+                        std::cerr << "Error decoding bencoded info dictionary: " << e.what() << std::endl;
+                        return 1;
+                }
+        }
+        else if (command == "peers")
+        {
+                std::ifstream input_file{argv[2], std::ios::binary};
+                if (!input_file)
+                {
+                        std::cerr << "Error opening torrent file: " << argv[2] << std::endl;
+                        return 1;
+                }
+
+                std::vector<char> file_data((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+                std::string_view file_data_view(file_data.data(), file_data.size());
+                try
+                {
+                        SHA1 sha1;
+                        auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
+                        std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
+                        std::string url = decoded_info.at("announce").get<std::string>();
+                        std::string encoded_info_hash = url_encode(sha1(bencoded_string));
+                        http::Request request{url + "?info_hash=" + encoded_info_hash + "&peer_id=00112233445566778899&port=6881&uploaded=0&downloaded=0&left=0&compact=1"};
+                        const auto response = request.send("GET");
+                        std::cout << std::string{response.body.begin(), response.body.end()} << std::endl;
+                        std::cout << encoded_info_hash << std::endl;
                 }
                 catch (const std::invalid_argument &e)
                 {

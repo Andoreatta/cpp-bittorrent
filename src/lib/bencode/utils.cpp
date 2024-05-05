@@ -32,13 +32,14 @@ int64_t string_to_int64(std::string_view str)
         return number;
 }
 
-void print_hash_in_hex(const std::string &piece_hash)
+std::string hash_to_hex_string(const std::string &piece_hash)
 {
+        std::ostringstream oss;
         for (char c : piece_hash)
         {
                 unsigned char byte = static_cast<unsigned char>(c); // cast to unsigned char to avoid sign extension
                 int value = static_cast<int>(byte);
-                std::cout << std::hex << std::setw(2) << std::setfill('0') << value;
+                oss << std::hex << std::setw(2) << std::setfill('0') << value;
         }
-        std::cout << std::endl;
+        return oss.str();
 }
