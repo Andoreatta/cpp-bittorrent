@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
                 try
                 {
                         SHA1 sha1;
-                        auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
+                        auto [decoded_info, _1] = decode_bencoded_dictionary(file_data_view);
                         std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
                         std::string url = decoded_info.at("announce").get<std::string>();
                         std::string encoded_info_hash = url_encode(sha1(bencoded_string));
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
                         const auto response = request.send("GET");
                         std::string response_body{response.body.begin(), response.body.end()};
                         std::string_view response_body_view(response_body.data(), response_body.size());
-                        auto [decoded_response, _] = decode_bencoded_dictionary(response_body_view);
+                        auto [decoded_response, _2] = decode_bencoded_dictionary(response_body_view);
                         std::string peers = decoded_response.at("peers").get<std::string>();
                         for (size_t i = 0; i < peers.length(); i += 6)
                         {
