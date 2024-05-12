@@ -6,8 +6,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/bittorrent",
             "args": [
-                "peers",
-                "../sample.torrent"
+                "handshake",
+                "../sample.torrent",
+                "165.232.33.77:51467"
             ],
             "stopAtEntry": true,
             "cwd": "${fileDirname}",

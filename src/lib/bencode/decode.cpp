@@ -2,46 +2,46 @@
 #include "utils.hpp"
 
 // transforms a bencoded string (e.g. 5:hello) into a json string (e.g. "hello")
-std::pair<std::string_view, size_t> decode_bencoded_string(std::string_view encoded_value)
+std::pair<std::string_view, size_t> decode_bencoded_string(const std::string_view encoded_value)
 {
         if (!std::isdigit(encoded_value.front()))
         {
                 throw std::invalid_argument("No integer found at first part");
         }
 
-        size_t colon_index = encoded_value.find_first_of(':');
+        const size_t colon_index = encoded_value.find_first_of(':');
         if (colon_index == std::string::npos)
         {
                 throw std::invalid_argument("No colon found");
         }
 
-        uint64_t string_length = string_to_uint64(encoded_value.substr(0, colon_index));
-        std::string_view extracted_string = encoded_value.substr(colon_index + 1, string_length);
+        const uint64_t string_length = string_to_uint64(encoded_value.substr(0, colon_index));
+        const std::string_view extracted_string = encoded_value.substr(colon_index + 1, string_length);
 
         return {extracted_string, colon_index + 1 + string_length};
 }
 
 // transforms a bencoded integer (e.g. i-52e) into a json number (e.g. -52)
-std::pair<int64_t, size_t> decode_bencoded_integer(std::string_view encoded_value)
+std::pair<int64_t, size_t> decode_bencoded_integer(const std::string_view encoded_value)
 {
         if (encoded_value.front() != 'i')
         {
                 throw std::invalid_argument("Invalid bencode signaling");
         }
 
-        size_t end_index = encoded_value.find_first_of('e');
+        const size_t end_index = encoded_value.find_first_of('e');
         if (end_index == std::string::npos)
         {
                 throw std::invalid_argument("No end of integer bencode found");
         }
 
-        int64_t extracted_integer = string_to_int64(encoded_value.substr(1, end_index - 1));
+        const int64_t extracted_integer = string_to_int64(encoded_value.substr(1, end_index - 1));
 
         return {extracted_integer, end_index + 1};
 }
 
 // transforms a bencoded list (e.g. l5:helloi52el7:goodbyei21eee) into a json array (e.g. ["hello", 52, ["goodbye", 21]])
-std::pair<json, size_t> decode_bencoded_list(std::string_view encoded_value)
+std::pair<json, size_t> decode_bencoded_list(const std::string_view encoded_value)
 {
         if (encoded_value.front() != 'l')
         {
@@ -94,7 +94,7 @@ std::pair<json, size_t> decode_bencoded_list(std::string_view encoded_value)
 }
 
 // transforms a bencoded dictionary (e.g. d3:foo3:bar5:helloi52ee) into a json object (e.g. {"foo": "bar", "hello": 52})
-std::pair<json, size_t> decode_bencoded_dictionary(std::string_view encoded_value)
+std::pair<json, size_t> decode_bencoded_dictionary(const std::string_view encoded_value)
 {
         if (encoded_value.front() != 'd')
         {
