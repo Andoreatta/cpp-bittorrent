@@ -198,36 +198,52 @@ int main(const int argc, const char *argv[])
                         SHA1 sha1;
                         const auto [decoded_info, _] = decode_bencoded_dictionary(file_data_view);
                         const std::string bencoded_string = encode_to_bencoded_string(decoded_info.at("info"));
-                        const std::string info_hash = sha1(bencoded_string);
                         const std::string self_id = "00112233445566778899";
+                        sha1.add(bencoded_string.c_str(), bencoded_string.size());
+                        unsigned char buffer[SHA1::HashBytes]; // 20 bytes sha1
+                        sha1.getHash(buffer);
+                        std::vector<unsigned char> info_hash(buffer, buffer + SHA1::HashBytes); // creating a vector from the buffer of chars
 
                         // length of protocol string + protocol string + reserved bytes + info hash + self id
-                        const std::string handshake = (char)19 +
-                                                      "BitTorrent protocol" +
-                                                      std::string(8, '\0') + info_hash + self_id;
-
+                        std::vector<unsigned char> handshake;
+                        handshake.push_back(19);
+                        std::copy("BitTorrent protocol", "BitTorrent protocol" + 19, std::back_inserter(handshake));
+                        handshake.insert(handshake.end(), 8, 0);
+                        handshake.insert(handshake.end(), info_hash.begin(), info_hash.end());
+                        handshake.insert(handshake.end(), self_id.begin(), self_id.end());
                         int bytes_sent = send(socket_fd, handshake.data(), handshake.size(), 0);
+
                         if (bytes_sent == -1)
                         {
                                 std::cerr << "Error sending handshake" << "\n";
+                                close(socket_fd);
                                 return 1;
                         }
 
-                        char buffer[68];
-                        int bytes_received = recv(socket_fd, buffer, sizeof(buffer), 0);
+                        unsigned char response[68];
+                        int bytes_received = recv(socket_fd, response, sizeof(response), 0);
                         if (bytes_received == -1)
                         {
-                                std::cerr << "Error receiving handshake" << "\n";
+                                std::cerr << "Error receiving handshake response" << "\n";
+                                close(socket_fd);
                                 return 1;
                         }
 
-                        std::string peer_id(buffer + 48, 20);
-                        std::cout << "Peer ID: " << hash_to_hex_string(peer_id) << "\n";
+                        // extract 20 last bytes from the response, peer id
+                        std::vector<unsigned char> peer_id(response + 48, response + 68);
+                        std::stringstream ss;
+                        for (unsigned char c : peer_id)
+                        {
+                                ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+                        }
+                        std::string printable_peer_id = ss.str();
+                        std::cout << "Peer ID: " << printable_peer_id << "\n";
                         close(socket_fd);
                 }
-                catch (const std::invalid_argument &e)
+                catch (const std::exception &e)
                 {
-                        std::cerr << "Error decoding bencoded info dictionary: " << e.what() << "\n";
+                        std::cerr << "Error: " << e.what() << "\n";
+                        close(socket_fd);
                         return 1;
                 }
         }
